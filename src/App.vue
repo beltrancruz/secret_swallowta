@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const isReady = ref<boolean>(false)
 
 const particlesLoaded = async (container: any) => {
 	console.log("Particles container loaded", container);
 };
+
+const current = ref<number>(10)
 
 const options = ref<any>({
 	name: "Fireworks Mask",
@@ -206,6 +208,21 @@ const options = ref<any>({
 	// }
 })
 
+
+onMounted(() => {
+	const intervalId = setInterval(() => {
+		if (current.value > 0) {
+			current.value--;
+		} else {
+			clearInterval(intervalId);
+		}
+	}, 1500);
+
+	onBeforeUnmount(() => {
+		clearInterval(intervalId);
+	});
+})
+
 </script>
 
 <template>
@@ -221,10 +238,27 @@ const options = ref<any>({
 				<vue-particles class="z-0" id="tsparticles" @particles-loaded="particlesLoaded" :options="options" />
 			</section>
 			<section v-else class="h-full w-full flex items-center justify-center">
-				<button @click="isReady = !isReady" type="button"
-					class="hover:scale-105 transition duration-300 ease-in-out px-4 py-2 text-bold outline-none border-2 rounded-lg border-white">
-					Trust me
-				</button>
+				<transition name="ready" mode="out-in">
+					<button v-if="current == 0" @click="isReady = !isReady" type="button"
+						class="hover:scale-105 transition duration-300 ease-in-out px-4 py-2 text-bold outline-none border-2 rounded-lg border-white">
+						Trust me
+					</button>
+					<div v-else class="text-5xl">
+						<transition name="pulse" mode="out-in">
+							<p v-if="current == 10">10</p>
+							<p v-else-if="current == 9">9</p>
+							<p v-else-if="current == 8">8</p>
+							<p v-else-if="current == 7">7</p>
+							<p v-else-if="current == 6">6</p>
+							<p v-else-if="current == 5">5</p>
+							<p v-else-if="current == 4">4</p>
+							<p v-else-if="current == 3">3</p>
+							<p v-else-if="current == 2">2</p>
+							<p v-else-if="current == 1">1</p>
+							<p v-else="current == 0">0</p>
+						</transition>
+					</div>
+				</transition>
 			</section>
 		</transition>
 	</main>
@@ -239,6 +273,34 @@ const options = ref<any>({
 .ready-enter-from,
 .ready-leave-to {
 	opacity: 0;
+}
+
+.number {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
+}
+
+.number.is-fading-out {
+  opacity: 0;
+}
+
+.pulse-enter-active,
+.pulse-leave-active {
+	transition: opacity 0.75s ease;
+}
+
+.pulse-enter-from,
+.pulse-leave-to {
+	opacity: 0;
+}
+
+.number {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
+}
+
+.number.is-fading-out {
+  opacity: 0;
 }
 
 </style>
